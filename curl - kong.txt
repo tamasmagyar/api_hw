@@ -1,0 +1,19 @@
+curl -X POST http://localhost:8001/services/ \
+    -d 'name=limit' \
+    -d 'url=http://localhost:10010'
+    
+    
+curl -X POST \
+  http://localhost:8001/routes \
+  -d 'protocols=http' \
+  -d 'service.id=service-id' \
+  -d 'paths=/myapi'
+
+  
+curl -X POST http://localhost:8001/services/limit/plugins \
+    --data "name=rate-limiting"  \
+    --data "config.minute=5" \
+    --data "config.hour=10000"
+    
+    
+curl -X https://localhost:8000/myapi
