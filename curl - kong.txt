@@ -1,19 +1,79 @@
+#service 
 curl -X POST http://localhost:8001/services/ \
-    -d 'name=limit' \
-    -d 'url=http://localhost:10010'
-    
-    
+    -d 'name=limit-service' \
+    -d 'url=http://penztarca_1:10010'
+
+#route
+# service.id 
 curl -X POST \
   http://localhost:8001/routes \
   -d 'protocols=http' \
-  -d 'service.id=service-id' \
-  -d 'paths=/myapi'
+  -d 'service.id=bf449405-290e-4766-941b-6ab097d7fb22' \
+  -d 'paths[]=/penztarca-api'
 
-  
-curl -X POST http://localhost:8001/services/limit/plugins \
+# service rate-limit
+curl -X POST http://localhost:8001/services/limit-service/plugins \
     --data "name=rate-limiting"  \
-    --data "config.minute=5" \
+    --data "config.minute=10" \
+    --data "config.hour=10000"
+  
+# Consumerek
+
+curl -X POST \
+  --url http://localhost:8001/consumers/ \
+  --data "username=mobil"
+ 
+curl -X POST \
+  --url http://localhost:8001/consumers/ \
+  --data "username=web" 
+  
+# Consumerek rate-limit
+curl -X POST http://localhost:8001/plugins \
+    --data "name=rate-limiting" \
+    --data "consumer_id=0ffef306-6985-4891-9034-56918793320c"  \
+    --data "config.second=3" \
     --data "config.hour=10000"
     
-    
-curl -X https://localhost:8000/myapi
+
+curl -X POST http://localhost:8001/plugins \
+    --data "name=rate-limiting" \
+    --data "consumer_id=0aa39b2d-3caf-4679-a25d-35374e170c45"  \
+    --data "config.minute=5" \
+    --data "config.hour=10000"
+ 
+# upstream and healthcheck
+curl -X POST \
+  http://localhost:8001/upstreams \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -H 'Postman-Token: 625e303e-63a6-4b74-b0ff-0274ea71f110,aec01e6c-f716-4fc1-a4fa-5cbd2a2de5c0' \
+  -H 'cache-control: no-cache,no-cache' \
+  -d 'name=penztarca-service&healthchecks.active.http_path=/&healthchecks.active.timeout=5&healthchecks.active.concurrency=10&healthchecks.active.healthy.interval=30&healthchecks.active.unhealthy.interval=30&healthchecks.active.healthy.successes=10&healthchecks.active.unhealthy.tcp_failures=5&healthchecks.active.unhealthy.timeouts=10&healthchecks.active.unhealthy.http_failures=5'  
+  
+  
+ # load-balancing 10010
+curl -X POST \
+  http://localhost:8001/upstreams/penztarca-service/targets \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -H 'Postman-Token: a654c88d-03cd-4d75-8e2c-f97910dd22ab' \
+  -H 'cache-control: no-cache' \
+  -d 'target=penztarca_1:10010&weight=100'
+
+  # load-balancing 10010
+  curl -X POST \
+  http://localhost:8001/upstreams/penztarca-service/targets \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -H 'Postman-Token: a654c88d-03cd-4d75-8e2c-f97910dd22ab' \
+  -H 'cache-control: no-cache' \
+  -d 'target=penztarca_1:10011&weight=100'
+  
+  
+  
+Teszt postmanban:
+GET http://localhost:8000/penztarca-api/users  -re 
+headerben a x-session-id:12345
+
+Consumer teszt:
+GET http://localhost:8000/penztarca-api/users
+headerben a x-session-id:12345
+consumer_id: mobil/web id
+
