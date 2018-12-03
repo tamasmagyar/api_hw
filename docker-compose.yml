@@ -53,13 +53,13 @@ services:
       retries: 15
 
   penztarca_1:
-    image: tamasmagyar/penztarca:1.18
+    image: tamasmagyar/penztarca:1.19
     restart: unless-stopped
     ports:
       - "10010:10010"
 
   penztarca_2:
-    image: tamasmagyar/penztarca:1.18
+    image: tamasmagyar/penztarca:1.19
     restart: unless-stopped
     ports:
       - "10011:10011"

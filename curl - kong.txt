@@ -58,13 +58,13 @@ curl -X POST \
   -H 'cache-control: no-cache' \
   -d 'target=penztarca_1:10010&weight=100'
 
-  # load-balancing 10010
+  # load-balancing 10011
   curl -X POST \
   http://localhost:8001/upstreams/penztarca-service/targets \
   -H 'Content-Type: application/x-www-form-urlencoded' \
   -H 'Postman-Token: a654c88d-03cd-4d75-8e2c-f97910dd22ab' \
   -H 'cache-control: no-cache' \
-  -d 'target=penztarca_1:10011&weight=100'
+  -d 'target=penztarca_1:10011&weight=50'
   
   
   
